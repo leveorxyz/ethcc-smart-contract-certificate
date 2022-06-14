@@ -1,7 +1,7 @@
 # SBT smart contract Project
 
  SBTs are also non-fungible tokens (NFTs) that a person can earn based in part on their job and education history. Unlike regular NFTs, they're non-transferable (though people can revoke them if they choose.) SBTs would represent a person's reputation and accomplishments, a kind of "extended resume".
- [Soulbound Token article by Ethereum co-founder Vitalik Buterin] (https://vitalik.ca/general/2022/01/26/soulbound.html)
+ [Soulbound Token article by Ethereum co-founder Vitalik Buterin](https://vitalik.ca/general/2022/01/26/soulbound.html)
 
 Try running some of the following tasks:
 
