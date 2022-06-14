@@ -36,7 +36,7 @@ contract MyToken is ERC721, Ownable, EIP712, ERC721Votes {
     function _beforeTokenTransfer(address from, address to, uint256 tokenId)
     internal override(ERC721, ERC721Votes)
     {
-        require(true == false, "Err: token is SOUL BOUND");
+        require(from == address(0), "Err: token is SOUL BOUND");
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
