@@ -1,8 +1,7 @@
-# Advanced Sample Hardhat Project
+# SBT smart contract Project
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
-
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+ SBTs are also non-fungible tokens (NFTs) that a person can earn based in part on their job and education history. Unlike regular NFTs, they're non-transferable (though people can revoke them if they choose.) SBTs would represent a person's reputation and accomplishments, a kind of "extended resume".
+ [Soulbound Token article by Ethereum co-founder Vitalik Buterin] (https://vitalik.ca/general/2022/01/26/soulbound.html)
 
 Try running some of the following tasks:
 
