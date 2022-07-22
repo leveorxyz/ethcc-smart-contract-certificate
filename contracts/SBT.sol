@@ -7,12 +7,12 @@ import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract MyToken is ERC721, Ownable, EIP712, ERC721Votes {
+contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
 
-    constructor() ERC721("MyToken", "MTK") EIP712("MyToken", "1") {}
+    constructor() ERC721("SBToken", "SBT") EIP712("SBToken", "1") {}
 
     function _baseURI() internal pure override returns (string memory) {
         return "https://www.myapp.com/";
