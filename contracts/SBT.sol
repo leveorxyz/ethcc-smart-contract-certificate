@@ -24,13 +24,13 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
     }
 
     struct MetaData {
-        string  certificateName;
-        string  userName;
-        string  topic;
-        string  description;
+        string certificateName;
+        string userName;
+        string topic;
+        string description;
         uint256 issuedAt;
-        string  signature;
-        string  uri;
+        string signature;
+        string uri;
     }
 
     Counters.Counter private _tokenIdCounter;
@@ -43,13 +43,13 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
 
     function safeMint(
         address to,
-        string  memory _certificateName,
-        string  memory _userName,
-        string  memory _topic,
-        string  memory _description,
+        string memory _certificateName,
+        string memory _userName,
+        string memory _topic,
+        string memory _description,
         uint256 _issuedAt,
-        string  memory _signature,
-        string  memory _tokenUri
+        string memory _signature,
+        string memory _tokenUri
     ) public ifIssuer {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
@@ -104,7 +104,7 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
         _;
     }
 
-    modifier ifIssuer {
+    modifier ifIssuer() {
         require(isIssuer[msg.sender], "Only issuers allowed");
         _;
     }
@@ -114,12 +114,32 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
         _;
     }
 
+    modifier permissionMetadata(uint256 tokenId) {
+        require(
+            isVerifier[msg.sender] ||
+                isIssuer[msg.sender] ||
+                ownerOf(tokenId) == msg.sender,
+            "Unauthorized"
+        );
+        _;
+    }
+
     function makeVerifier(address _address) external onlyOwner {
         isVerifier[_address] = true;
     }
 
     function makeIssuer(address _address) external onlyOwner {
         isIssuer[_address] = true;
+    }
+
+    function viewTokenMetadata(uint256 tokenId)
+        external
+        view
+        onlyExistingToken(tokenId)
+        permissionMetadata(tokenId)
+        returns (MetaData memory)
+    {
+        return metaData[tokenId];
     }
 
     function verify(uint256 tokenId)
