@@ -24,10 +24,13 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
     }
 
     struct MetaData {
-        string name;
+        string  certificateName;
+        string  userName;
+        string  topic;
+        string  description;
         uint256 issuedAt;
-        string signature;
-        string uri;
+        string  signature;
+        string  uri;
     }
 
     Counters.Counter private _tokenIdCounter;
@@ -40,21 +43,27 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
 
     function safeMint(
         address to,
-        string memory _name,
+        string  memory _certificateName,
+        string  memory _userName,
+        string  memory _topic,
+        string  memory _description,
         uint256 _issuedAt,
-        string memory _signature,
-        string memory _uri
-    ) public onlyOwner {
+        string  memory _signature,
+        string  memory _tokenUri
+    ) public ifIssuer {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         tokenStatus[tokenId] = status.NOT_VERIFIED;
         issuer[tokenId] = msg.sender;
         metaData[tokenId] = MetaData({
-            name: _name,
+            certificateName: _certificateName,
+            userName: _userName,
+            topic: _topic,
+            description: _description,
             issuedAt: _issuedAt,
             signature: _signature,
-            uri: _uri
+            uri: string(abi.encodePacked(_baseURI(), _tokenUri))
         });
     }
 
@@ -95,6 +104,11 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
         _;
     }
 
+    modifier ifIssuer {
+        require(isIssuer[msg.sender], "Only issuers allowed");
+        _;
+    }
+
     modifier onlyVerifier() {
         require(isVerifier[msg.sender], "Only verifiers allowed");
         _;
@@ -102,6 +116,10 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
 
     function makeVerifier(address _address) external onlyOwner {
         isVerifier[_address] = true;
+    }
+
+    function makeIssuer(address _address) external onlyOwner {
+        isIssuer[_address] = true;
     }
 
     function verify(uint256 tokenId)
