@@ -29,6 +29,10 @@ module.exports = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    alfajores: {
+      url: "https://alfajores-forno.celo-testnet.org",
+      accounts: [],
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
