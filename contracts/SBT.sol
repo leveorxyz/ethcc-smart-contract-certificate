@@ -23,6 +23,7 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
         REVOKED
     }
     struct MetaData {
+        uint256 id;
         string certificateName;
         string userName;
         status verificationStatus;
@@ -55,6 +56,7 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
         issuer[tokenId] = msg.sender;
         nIssued[msg.sender]++;
         metaData[tokenId] = MetaData({
+            id: tokenId,
             certificateName: _certificateName,
             userName: _userName,
             verificationStatus: status.NOT_VERIFIED,
@@ -131,16 +133,25 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
         return metaData[tokenId];
     }
 
-    function getIssuedTokens(bool owned)
+    function getIssuedTokens(uint256 mode)
         external
         view
         returns (MetaData[] memory)
     {
         uint256 counter = 0;
         uint256 totalTokens = _tokenIdCounter.current();
-        MetaData[] memory tokenList = new MetaData[](isIssuer[msg.sender] ? nIssued[msg.sender] : totalTokens);
+        if (mode == 0) {
+            totalTokens = nIssued[msg.sender];
+        } else if (mode == 2) {
+            uint256 ownedCount = 0;
+            for (uint256 i=0; i<totalTokens; i++) {
+                ownedCount += ownerOf(i) == msg.sender ? 1 : 0;
+            }
+            totalTokens = ownedCount;
+        }
+        MetaData[] memory tokenList = new MetaData[](totalTokens);
         for (uint256 i = 0; i < totalTokens; i++) {
-            if ((owned && ownerOf(i) == msg.sender) || (!owned && (!isIssuer[msg.sender] || issuer[i] == msg.sender))) {
+            if ((mode == 0 && issuer[i] == msg.sender) || (mode == 1) || (mode == 2 && ownerOf(i) == msg.sender)) {
                 tokenList[counter] = metaData[i];
                 counter++;
             }
