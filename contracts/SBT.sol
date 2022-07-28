@@ -25,7 +25,7 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
     struct MetaData {
         string certificateName;
         string userName;
-        string topic;
+        status verificationStatus;
         string description;
         uint256 issuedAt;
         string signature;
@@ -43,7 +43,6 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
         address to,
         string memory _certificateName,
         string memory _userName,
-        string memory _topic,
         string memory _description,
         uint256 _issuedAt,
         string memory _signature,
@@ -58,7 +57,7 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
         metaData[tokenId] = MetaData({
             certificateName: _certificateName,
             userName: _userName,
-            topic: _topic,
+            verificationStatus: status.NOT_VERIFIED,
             description: _description,
             issuedAt: _issuedAt,
             signature: _signature,
@@ -85,19 +84,6 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
-    modifier notRevoked(uint256 tokenId) {
-        require(
-            tokenStatus[tokenId] < status.REVOKED,
-            "The token is already revoked"
-        );
-        _;
-    }
-
-    modifier onlyExistingToken(uint256 tokenId) {
-        require(tokenId <= _tokenIdCounter.current(), "Invalid token id");
-        _;
-    }
-
     modifier onlyIssuer(uint256 tokenId) {
         require(issuer[tokenId] == msg.sender, "Only the verifier can revoke");
         _;
@@ -109,15 +95,6 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
     }
     modifier onlyVerifier() {
         require(isVerifier[msg.sender], "Only verifiers allowed");
-        _;
-    }
-    modifier permissionMetadata(uint256 tokenId) {
-        require(
-            isVerifier[msg.sender] ||
-                isIssuer[msg.sender] ||
-                ownerOf(tokenId) == msg.sender,
-            "Unauthorized"
-        );
         _;
     }
 
@@ -132,17 +109,14 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
     function verify(uint256 tokenId)
         external
         onlyVerifier
-        onlyExistingToken(tokenId)
-        notRevoked(tokenId)
     {
         tokenStatus[tokenId] = status.VERIFIED;
         verifier[tokenId] = msg.sender;
+        metaData[tokenId].verificationStatus = status.VERIFIED;
     }
 
     function revoke(uint256 tokenId)
         external
-        onlyExistingToken(tokenId)
-        notRevoked(tokenId)
         onlyIssuer(tokenId)
     {
         tokenStatus[tokenId] = status.REVOKED;
@@ -152,23 +126,21 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
     function getTokenPublicData(uint256 tokenId)
         external
         view
-        onlyExistingToken(tokenId)
         returns (MetaData memory)
     {
         return metaData[tokenId];
     }
 
-    function getIssuedTokens()
+    function getIssuedTokens(bool owned)
         external
         view
-        ifIssuer
         returns (MetaData[] memory)
     {
         uint256 counter = 0;
         uint256 totalTokens = _tokenIdCounter.current();
-        MetaData[] memory tokenList = new MetaData[](nIssued[msg.sender]);
+        MetaData[] memory tokenList = new MetaData[](isIssuer[msg.sender] ? nIssued[msg.sender] : totalTokens);
         for (uint256 i = 0; i < totalTokens; i++) {
-            if (issuer[i] == msg.sender) {
+            if ((owned && ownerOf(i) == msg.sender) || (!owned && (!isIssuer[msg.sender] || issuer[i] == msg.sender))) {
                 tokenList[counter] = metaData[i];
                 counter++;
             }
