@@ -122,6 +122,7 @@ contract SBT is ERC721, Ownable, EIP712, ERC721Votes {
         onlyIssuer(tokenId)
     {
         tokenStatus[tokenId] = status.REVOKED;
+        metaData[tokenId].verificationStatus = status.REVOKED;
         revokedList.push(tokenId);
     }
 
